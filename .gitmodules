@@ -1,0 +1,9 @@
+[submodule "ext/imgui"]
+	path = ext/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "ext/implot"]
+	path = ext/implot
+	url = https://github.com/epezent/implot.git
+[submodule "ext/lore"]
+	path = ext/lore
+	url = https://69co.de/research/lore.git
