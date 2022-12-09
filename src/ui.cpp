@@ -1,7 +1,11 @@
 #include <lui/ui.hpp>
 #include <imgui.h>
 #include <implot.h>
+
 #include <lore/io/LensReader.h>
+#include <lore/rt/GeometricalIntersector.h>
+#include <lore/rt/SequentialTrace.h>
+
 #include <fstream>
 
 UI::UI() {
@@ -9,10 +13,12 @@ UI::UI() {
     lore::GlassCatalog::shared.read("../ext/lore/data/glass/obsolete001.glc");
     lore::GlassCatalog::shared.read("../ext/lore/data/glass/hoya.glc");
 
-    std::ifstream file("../ext/lore/data/lenses/wideangle.len");
+    std::ifstream file("../ext/lore/data/lenses/simple.len");
     lore::io::LensReader reader;
     auto result = reader.read(file);
     lens = result.front();
+
+    spotDiagram.compute(lens);
 }
 
 struct ImTransform2 {
@@ -135,7 +141,7 @@ void drawElement(
     drawList->AddPolyline(buffer.data(), buffer.size(), IM_COL32_WHITE, ImDrawFlags_Closed, 1);
 }
 
-void drawLens(const lore::LensSchema<float> &lens) {
+void UI::drawLens(lore::LensSchema<float> &lens) {
     ImGui::Text("Lens: %s", lens.name.c_str());
 
     float trackLength = 0;
@@ -145,6 +151,15 @@ void drawLens(const lore::LensSchema<float> &lens) {
         trackLength += s.thickness;
         maxAperture = std::max(maxAperture, s.aperture);
     }
+
+    lensChanged |= ImGui::DragFloat(
+        "BFL",
+        &lens.surfaces[lens.surfaces.size()-2].thickness,
+        0.001f,
+        -1000,
+        +1000,
+        "BFL: %.2fmm"
+    );
 
     ImGui::Text("TTL: %f", trackLength);
 
@@ -176,6 +191,8 @@ void drawLens(const lore::LensSchema<float> &lens) {
 }
 
 void UI::draw() {
+    lensChanged = false;
+
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Demos")) {
             ImGui::MenuItem("ImGui demo", nullptr, &showImguiDemo);
@@ -194,4 +211,193 @@ void UI::draw() {
         drawLens(lens);
         ImGui::End();
     }
+
+    if (lensChanged) {
+        spotDiagram.compute(lens);
+    }
+
+    spotDiagram.draw();
+}
+
+/*class CircleGrid : public std::iterator<
+    std::input_iterator_tag,
+    lore::Vector2<float>
+> {
+    void advance() {
+        while (!done) {
+            value.x() = float(x) / width;
+            value.y() = float(y) / height;
+
+            if (value.lengthSquared() < 1) {
+                break;
+            }
+
+            if (x++ >= width) {
+                x = 0;
+                if (y++ >= height) {
+                    done = true;
+                    y = 0;
+                }
+            }
+        }
+    }
+
+public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = lore::Vector2<float>;
+    using reference = value_type const &;
+    using pointer = value_type const *;
+    using difference_type = ptrdiff_t;
+
+    CircleGrid(int width, int height)
+    : width(width), height(height), x(0), y(0), done(false) {
+        advance();
+    }
+
+    explicit operator bool() const { return !done; }
+
+    reference operator*() const { return value; }
+    pointer operator->() const { return &value; }
+
+    CircleGrid &operator++() {
+        advance();
+        return *this;
+    }
+
+private:
+    bool done;
+    int width, height;
+    int x, y;
+
+    lore::Vector2<float> value;
+};*/
+
+struct CircleGrid {
+    struct iterator {
+        iterator(const CircleGrid &cg, bool) : done(true), cg(cg) {}
+        iterator(const CircleGrid &cg)
+        : done(false), x(-1), y(0), cg(cg) {
+            advance();
+        }
+
+        const lore::Vector2<float> &operator*() const { return value; }
+        iterator &operator++() {
+            advance();
+            return *this;
+        }
+
+        bool operator!=(const iterator &other) const {
+            return done != other.done;
+        }
+
+    private:
+        lore::Vector2<float> value;
+
+        bool done;
+        int x, y;
+        const CircleGrid &cg;
+
+        void advance() {
+            while (!done) {
+                if (++x >= cg.width) {
+                    x = 0;
+                    if (++y >= cg.height) {
+                        done = true;
+                        y = 0;
+                    }
+                }
+
+                value.x() = 2 * float(x) / (cg.width - 1) - 1;
+                value.y() = 2 * float(y) / (cg.height - 1) - 1;
+
+                if (value.lengthSquared() <= 1) {
+                    break;
+                }
+            }
+        }
+    };
+
+    CircleGrid(int width, int height)
+    : width(width), height(height) {}
+
+    iterator begin() { return iterator(*this); }
+    iterator end() { return iterator(*this, true); }
+
+private:
+    int width, height;
+};
+
+void SpotDiagram::compute(const lore::LensSchema<float> &lensSchema) {
+    using Float = float;
+
+    points.clear();
+
+    const lore::rt::SequentialTrace<Float> trace { lensSchema.primaryWavelength() };
+    const lore::rt::GeometricalIntersector<Float> intersector;
+
+    const auto lens = lensSchema.lens<Float>();
+
+    const int Ntheta = 32;
+    const int Nradius = 32;
+
+    lore::Vector2<double> firstMoment { 0, 0 };
+    lore::Vector2<double> secondMoment { 0, 0 };
+
+    for (const auto &point : CircleGrid(16, 16)) {
+        const auto pupil = lensSchema.entranceBeamRadius * point;
+        auto ray = lore::rt::Ray<Float>(
+            lore::Vector3<Float> { pupil.x(), pupil.y(), -10 },
+            lore::Vector3<Float> { 0, 0, 1 }
+        );
+
+        if (trace(ray, lens, intersector)) {
+            points.push_back({
+                float(ray.origin.x()),
+                float(ray.origin.y())
+            });
+
+            const auto image = lore::Vector2<double> {
+                ray.origin.x(),
+                ray.origin.y()
+            };
+            firstMoment += image;
+            secondMoment += lore::sqr(image);
+        }
+    }
+
+    double countNorm = 1 / double(points.size());
+    auto meanSquare = (secondMoment * countNorm - lore::sqr(firstMoment * countNorm)).sum();
+    spotRMS = float(lore::sqrt(meanSquare));
+}
+
+void SpotDiagram::draw() {
+    if (!ImGui::Begin("Spot diagram")) {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("%ld Points", points.size());
+    ImGui::Text("RMS: %f", spotRMS);
+
+    ImPlot::SetNextAxesLimits(-2, +2, -2, +2);
+    if (ImPlot::BeginPlot("Field 0 deg", ImVec2(-1, 0), ImPlotFlags_Equal)) {
+        ImPlot::SetNextMarkerStyle(
+            ImPlotMarker_Square,
+            1,
+            ImVec4(1, 1, 1, 1),
+            IMPLOT_AUTO,
+            ImVec4(1, 1, 1, 0)
+        );
+        ImPlot::PlotScatter("Primary",
+            (float *)points.data(),
+            (float *)points.data() + 1,
+            int(points.size()),
+            ImPlotScatterFlags_None,
+            0,
+            2 * sizeof(float)
+        );
+        ImPlot::EndPlot();
+    }
+
+    ImGui::End();
 }
