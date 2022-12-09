@@ -4,6 +4,7 @@
 
 #include "SpotDiagram.hpp"
 #include "RayInterceptCurve.hpp"
+#include "ParaxialConstants.hpp"
 
 struct UI {
     UI();
@@ -21,4 +22,5 @@ private:
 
     SpotDiagram spotDiagram;
     RayInterceptCurve rayInterceptCurve;
+    ParaxialConstants paraxialConstants;
 };

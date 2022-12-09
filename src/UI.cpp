@@ -17,8 +17,7 @@ UI::UI() {
     lore::io::LensReader reader;
     auto result = reader.read(file);
     lens = result.front();
-
-    spotDiagram.compute(lens);
+    lensChanged = true;
 }
 
 struct ImTransform2 {
@@ -153,6 +152,16 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
     }
 
     lensChanged |= ImGui::DragFloat(
+        "OD",
+        &lens.surfaces.front().thickness,
+        0.001f,
+        -1e+20,
+        +1e+20,
+        "OD: %.2gmm"
+    );
+    lens.surfaces.front().aperture = lens.surfaces.front().thickness * std::tan(lens.fieldAngle * M_PI / 180);
+
+    lensChanged |= ImGui::DragFloat(
         "BFL",
         &lens.surfaces[lens.surfaces.size()-2].thickness,
         0.001f,
@@ -191,8 +200,6 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
 }
 
 void UI::draw() {
-    lensChanged = false;
-
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Demos")) {
             ImGui::MenuItem("ImGui demo", nullptr, &showImguiDemo);
@@ -214,7 +221,10 @@ void UI::draw() {
 
     if (lensChanged) {
         spotDiagram.compute(lens);
+        paraxialConstants.compute(lens);
+        lensChanged = false;
     }
 
     spotDiagram.draw();
+    paraxialConstants.draw();
 }
