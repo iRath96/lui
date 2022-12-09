@@ -2,14 +2,8 @@
 
 #include <lore/lens/LensSchema.h>
 
-struct SpotDiagram {
-    void compute(const lore::LensSchema<float> &lens);
-    void draw();
-
-private:
-    std::vector<lore::Vector2<float>> points;
-    float spotRMS;
-};
+#include "SpotDiagram.hpp"
+#include "RayInterceptCurve.hpp"
 
 struct UI {
     UI();
@@ -26,4 +20,5 @@ private:
     lore::LensSchema<float> lens;
 
     SpotDiagram spotDiagram;
+    RayInterceptCurve rayInterceptCurve;
 };

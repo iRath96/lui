@@ -1,5 +1,5 @@
 #include <lui/main.hpp>
-#include <lui/ui.hpp>
+#include <lui/UI.hpp>
 
 #include "imgui.h"
 #include "implot.h"
