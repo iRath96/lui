@@ -12,13 +12,13 @@
 namespace fs = std::filesystem;
 
 UI::UI() {
-    lore::GlassCatalog::shared.read("../ext/lore/data/glass/schott.glc");
-    lore::GlassCatalog::shared.read("../ext/lore/data/glass/obsolete001.glc");
-    lore::GlassCatalog::shared.read("../ext/lore/data/glass/hoya.glc");
+    lore::GlassCatalog::shared.read("./data/glass/schott.glc");
+    lore::GlassCatalog::shared.read("./data/glass/obsolete001.glc");
+    lore::GlassCatalog::shared.read("./data/glass/hoya.glc");
 
-    loadLens("../ext/lore/data/lenses/simple.len");
+    loadLens("./data/lenses/simple.len");
 
-    for (const auto & entry : fs::directory_iterator("../ext/lore/data/lenses")) {
+    for (const auto & entry : fs::directory_iterator("./data/lenses")) {
         availableLenses.push_back(entry.path());
     }
 }

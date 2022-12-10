@@ -1,10 +1,12 @@
+#ifndef __EMSCRIPTEN__
+
 #include <lui/main.hpp>
 #include <lui/UI.hpp>
 
 #include "imgui.h"
 #include "implot.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -107,8 +109,8 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
-    io.Fonts->AddFontFromFileTTF("/System/Library/Fonts/SFNS.ttf", 30);
-    io.Fonts->AddFontFromFileTTF("/System/Library/Fonts/Monaco.ttf", 26);
+    io.Fonts->AddFontFromFileTTF("./data/fonts/SFNS.ttf", 30);
+    io.Fonts->AddFontFromFileTTF("./data/fonts/Monaco.ttf", 26);
     io.FontGlobalScale = 0.5;
 
     // Our state
@@ -169,3 +171,5 @@ int main(int, char**)
 
     return 0;
 }
+
+#endif
