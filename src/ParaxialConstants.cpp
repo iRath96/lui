@@ -27,7 +27,7 @@ void ParaxialConstants::compute(const LensSchema<float> &lensSchema) {
 }
 
 void ParaxialConstants::draw() {
-    if (!ImGui::Begin("Paraxial constants")) {
+    if (!ImGui::Begin("Paraxial Constants")) {
         ImGui::End();
         return;
     }

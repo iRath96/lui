@@ -121,7 +121,7 @@ void SpotDiagram::compute(const LensSchema<float> &lensSchema) {
 }
 
 void SpotDiagram::draw() {
-    if (!ImGui::Begin("Spot diagram")) {
+    if (!ImGui::Begin("Spot Diagram")) {
         ImGui::End();
         return;
     }
