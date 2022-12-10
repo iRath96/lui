@@ -13,7 +13,7 @@ UI::UI() {
     lore::GlassCatalog::shared.read("../ext/lore/data/glass/obsolete001.glc");
     lore::GlassCatalog::shared.read("../ext/lore/data/glass/hoya.glc");
 
-    std::ifstream file("../ext/lore/data/lenses/simple.len");
+    std::ifstream file("../ext/lore/data/lenses/wideangle.len");
     lore::io::LensReader reader;
     auto result = reader.read(file);
     lens = result.front();
@@ -151,20 +151,22 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
         maxAperture = std::max(maxAperture, s.aperture);
     }
 
+    auto &objectDistance = lens.surfaces.front().thickness;
+    auto &objectHeight = lens.surfaces.front().aperture;
     lensChanged |= ImGui::DragFloat(
         "OD",
-        &lens.surfaces.front().thickness,
-        0.001f,
+        &objectDistance,
+        abs(objectDistance) / 1000,
         -1e+20,
         +1e+20,
-        "OD: %.2gmm"
+        "OD: %.3gmm"
     );
-    lens.surfaces.front().aperture = lens.surfaces.front().thickness * std::tan(lens.fieldAngle * M_PI / 180);
+    objectHeight = objectDistance * std::tan(lens.fieldAngle * M_PI / 180);
 
     lensChanged |= ImGui::DragFloat(
         "BFL",
         &lens.surfaces[lens.surfaces.size()-2].thickness,
-        0.001f,
+        0.01f,
         -1000,
         +1000,
         "BFL: %.2fmm"
@@ -172,18 +174,22 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
 
     ImGui::Text("TTL: %f", trackLength);
 
-    const ImVec2 targetSize = { 600, 400 };
-    const float scale = std::min(targetSize.x / trackLength, targetSize.y / (2 * maxAperture));
-    const ImVec2 actualSize = { trackLength * scale, 2 * maxAperture * scale };
+    const ImVec2 targetSize = { 500, 300 };
+    const float padding = 4;
+    const ImVec2 lensSize = {
+        trackLength + 2 * padding,
+        2 * maxAperture + 2 * padding
+    };
+    const float scale = std::min(targetSize.x / lensSize.x, targetSize.y / lensSize.y);
+    const ImVec2 actualSize = { lensSize.x * scale, lensSize.y * scale };
 
     ImTransform2 transform;
     transform.scale = { scale, scale };
     transform.offset = {
-        ImGui::GetCursorScreenPos().x,
-        ImGui::GetCursorScreenPos().y + transform.scale.y * maxAperture
+        ImGui::GetCursorScreenPos().x + transform.scale.x * padding,
+        ImGui::GetCursorScreenPos().y + transform.scale.y * (maxAperture + padding)
     };
 
-    float z = 0;
     for (int i = 1; i < lens.surfaces.size() - 1; i++) {
         const auto &surface = lens.surfaces[i];
         if (i == lens.stopIndex) {
@@ -195,8 +201,6 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
         transform.offset.x += transform.scale.x * surface.thickness;
     }
     ImGui::Dummy(actualSize);
-
-    ImGui::Text("z = %f", z);
 }
 
 void UI::draw() {
@@ -214,10 +218,9 @@ void UI::draw() {
     if (showImplotDemo) ImPlot::ShowDemoWindow();
 
     if (ImGui::Begin("lui")) {
-        ImGui::Text("Hello");
         drawLens(lens);
-        ImGui::End();
     }
+    ImGui::End();
 
     if (lensChanged) {
         spotDiagram.compute(lens);

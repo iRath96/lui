@@ -59,7 +59,7 @@ void RayInterceptCurve::compute(const LensSchema<float> &lensSchema) {
         const SequentialTrace<Float> trace{wavelength.wavelength};
         const GeometricalIntersector<Float> intersector;
 
-        for (const auto &point: linspace(-1, +1, 100)) {
+        for (const auto &point: linspace(-1, +1, 200)) {
             const auto pupil = lore::Vector2<float>{ 0, lensSchema.entranceBeamRadius * point };
             auto ray = lore::rt::Ray<Float>(
                 lore::Vector3<Float>{0, pupil.y(), -10},
