@@ -16,4 +16,5 @@ private:
     };
     std::vector<SubPlot> subplots;
     float spotRMS;
+    float autodiff;
 };

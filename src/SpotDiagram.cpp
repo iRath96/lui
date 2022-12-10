@@ -2,6 +2,7 @@
 
 #include <lore/rt/GeometricalIntersector.h>
 #include <lore/rt/SequentialTrace.h>
+#include <lore/optim/FADFloat.h>
 
 #include <imgui.h>
 #include <implot.h>
@@ -66,15 +67,16 @@ private:
 };
 
 void SpotDiagram::compute(const LensSchema<float> &lensSchema) {
-    using Float = double;
+    using Float = optim::FADFloat<double, 1>;
 
     subplots.clear();
 
-    const auto lens = lensSchema.lens<Float>();
+    auto lens = lensSchema.lens<Float>();
+    lens.surfaces[lens.surfaces.size() - 2].thickness.dVd(0) = 1;
 
-    lore::Vector2<double> firstMoment{0, 0};
-    lore::Vector2<double> secondMoment{0, 0};
-    double weightSum = 0;
+    lore::Vector2<Float> firstMoment{0, 0};
+    lore::Vector2<Float> secondMoment{0, 0};
+    Float weightSum = 0;
 
     for (const auto &wavelength : lensSchema.wavelengths) {
         subplots.emplace_back();
@@ -93,16 +95,16 @@ void SpotDiagram::compute(const LensSchema<float> &lensSchema) {
 
             if (trace(ray, lens, intersector)) {
                 subplot.points.push_back({
-                     float(ray.origin.x()),
-                     float(ray.origin.y())
+                     float(detach(ray.origin.x())),
+                     float(detach(ray.origin.y()))
                 });
 
-                const auto image = lore::Vector2<double>{
+                const auto image = lore::Vector2<Float>{
                     ray.origin.x(),
                     ray.origin.y()
                 };
 
-                const double weight = wavelength.weight;
+                const Float weight = wavelength.weight;
                 firstMoment += weight * image;
                 secondMoment += weight * lore::sqr(image);
                 weightSum += weight;
@@ -110,9 +112,12 @@ void SpotDiagram::compute(const LensSchema<float> &lensSchema) {
         }
     }
 
-    double norm = 1 / weightSum;
-    auto meanSquare = (secondMoment * norm - lore::sqr(firstMoment * norm)).sum();
-    spotRMS = float(lore::sqrt(meanSquare));
+    Float norm = Float(1) / weightSum;
+    auto meanSquare = (secondMoment * norm - sqr(firstMoment * norm)).sum();
+    auto rms = sqrt(meanSquare);
+
+    spotRMS = float(detach(rms));
+    autodiff = rms.dVd(0);
 }
 
 void SpotDiagram::draw() {
@@ -121,7 +126,7 @@ void SpotDiagram::draw() {
         return;
     }
 
-    ImGui::Text("RMS: %f", spotRMS);
+    ImGui::Text("RMS: %f\ndVd: %f", spotRMS, autodiff);
 
     ImPlot::SetNextAxesLimits(-2, +2, -2, +2);
     if (ImPlot::BeginPlot("Field 0 deg", ImVec2(-1, 0), ImPlotFlags_Equal)) {

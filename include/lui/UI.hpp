@@ -5,6 +5,7 @@
 #include "SpotDiagram.hpp"
 #include "RayInterceptCurve.hpp"
 #include "ParaxialConstants.hpp"
+#include "SurfaceData.hpp"
 
 struct UI {
     UI();
@@ -20,6 +21,7 @@ private:
 
     lore::LensSchema<float> lens;
 
+    SurfaceData surfaceData;
     SpotDiagram spotDiagram;
     RayInterceptCurve rayInterceptCurve;
     ParaxialConstants paraxialConstants;

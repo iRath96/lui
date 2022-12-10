@@ -77,7 +77,7 @@ void RayInterceptCurve::compute(const LensSchema<float> &lensSchema) {
 }
 
 void RayInterceptCurve::draw() {
-    if (!ImGui::Begin("RIC")) {
+    if (!ImGui::Begin("Ray Intercept Curve")) {
         ImGui::End();
         return;
     }

@@ -151,27 +151,6 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
         maxAperture = std::max(maxAperture, s.aperture);
     }
 
-    auto &objectDistance = lens.surfaces.front().thickness;
-    auto &objectHeight = lens.surfaces.front().aperture;
-    lensChanged |= ImGui::DragFloat(
-        "OD",
-        &objectDistance,
-        abs(objectDistance) / 1000,
-        -1e+20,
-        +1e+20,
-        "OD: %.3gmm"
-    );
-    objectHeight = objectDistance * std::tan(lens.fieldAngle * M_PI / 180);
-
-    lensChanged |= ImGui::DragFloat(
-        "BFL",
-        &lens.surfaces[lens.surfaces.size()-2].thickness,
-        0.01f,
-        -1000,
-        +1000,
-        "BFL: %.2fmm"
-    );
-
     ImGui::Text("TTL: %f", trackLength);
 
     const ImVec2 targetSize = { 500, 300 };
@@ -217,10 +196,12 @@ void UI::draw() {
     if (showImguiDemo) ImGui::ShowDemoWindow(&showImguiDemo);
     if (showImplotDemo) ImPlot::ShowDemoWindow();
 
-    if (ImGui::Begin("lui")) {
+    if (ImGui::Begin("Lens Drawing")) {
         drawLens(lens);
     }
     ImGui::End();
+
+    surfaceData.draw(lens, lensChanged);
 
     if (lensChanged) {
         spotDiagram.compute(lens);
