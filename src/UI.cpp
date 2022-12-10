@@ -221,10 +221,13 @@ void UI::draw() {
 
     if (lensChanged) {
         spotDiagram.compute(lens);
+        rayInterceptCurve.compute(lens);
         paraxialConstants.compute(lens);
+
         lensChanged = false;
     }
 
     spotDiagram.draw();
+    rayInterceptCurve.draw();
     paraxialConstants.draw();
 }

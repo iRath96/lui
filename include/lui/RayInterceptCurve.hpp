@@ -11,8 +11,8 @@ struct RayInterceptCurve {
 
 private:
     struct SubPlot {
-        std::string name;
-        lore::Vector2<float> points;
+        float wavelength;
+        std::vector<lore::Vector2<float>> points;
     };
-    std::vector<SubPlot> subPlots;
+    std::vector<SubPlot> subplots;
 };
