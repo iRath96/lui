@@ -6,14 +6,25 @@
 #include <lore/rt/GeometricalIntersector.h>
 #include <lore/rt/SequentialTrace.h>
 
+#include <filesystem>
 #include <fstream>
+
+namespace fs = std::filesystem;
 
 UI::UI() {
     lore::GlassCatalog::shared.read("../ext/lore/data/glass/schott.glc");
     lore::GlassCatalog::shared.read("../ext/lore/data/glass/obsolete001.glc");
     lore::GlassCatalog::shared.read("../ext/lore/data/glass/hoya.glc");
 
-    std::ifstream file("../ext/lore/data/lenses/wideangle.len");
+    loadLens("../ext/lore/data/lenses/simple.len");
+
+    for (const auto & entry : fs::directory_iterator("../ext/lore/data/lenses")) {
+        availableLenses.push_back(entry.path());
+    }
+}
+
+void UI::loadLens(const std::string &path) {
+    std::ifstream file(path);
     lore::io::LensReader reader;
     auto result = reader.read(file);
     lens = result.front();
@@ -184,6 +195,15 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
 
 void UI::draw() {
     if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            for (const auto &path : availableLenses) {
+                if (ImGui::MenuItem(path.c_str())) {
+                    loadLens(path);
+                }
+            }
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Demos")) {
             ImGui::MenuItem("ImGui demo", nullptr, &showImguiDemo);
             ImGui::MenuItem("ImPlot demo", nullptr, &showImplotDemo);

@@ -7,6 +7,9 @@
 #include "ParaxialConstants.hpp"
 #include "SurfaceData.hpp"
 
+#include <vector>
+#include <string>
+
 struct UI {
     UI();
     
@@ -14,6 +17,9 @@ struct UI {
 
 private:
     void drawLens(lore::LensSchema<float> &lens);
+    void loadLens(const std::string &path);
+
+    std::vector<std::string> availableLenses;
 
     bool showImguiDemo = false;
     bool showImplotDemo = false;

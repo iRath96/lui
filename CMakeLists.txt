@@ -16,4 +16,4 @@ file(GLOB lui_SOURCES CONFIGURE_DEPENDS "include/lui/**/*.h" "src/*.cpp" "src/**
 add_executable(lui ${lui_SOURCES})
 target_link_libraries(lui PRIVATE lore imgui implot)
 target_include_directories(lui PUBLIC "${CMAKE_SOURCE_DIR}/include")
-target_compile_features(lui PUBLIC cxx_std_14)
+target_compile_features(lui PUBLIC cxx_std_17)
