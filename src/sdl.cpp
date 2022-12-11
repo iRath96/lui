@@ -75,6 +75,8 @@ int main(int, char**)
     // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
     io.IniFilename = NULL;
 
+    ImGui::LoadIniSettingsFromDisk("./data/imgui.default.ini");
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();

@@ -4,6 +4,7 @@
 #include <lui/UI.hpp>
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "implot.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -68,6 +69,10 @@ int main(int, char**)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = "imgui.ini";
+
+    ImGui::LoadIniSettingsFromDisk("./data/imgui.default.ini");
+    ImGui::LoadIniSettingsFromDisk(io.IniFilename);
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
