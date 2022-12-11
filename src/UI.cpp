@@ -21,6 +21,7 @@ UI::UI() {
     for (const auto & entry : fs::directory_iterator("./data/lenses")) {
         availableLenses.push_back(entry.path());
     }
+    std::sort(availableLenses.begin(), availableLenses.end());
 }
 
 void UI::loadLens(const std::string &path) {
@@ -156,7 +157,7 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
 
     float trackLength = 0;
     float maxAperture = 0;
-    for (int i = 1; i < lens.surfaces.size() - 1; i++) {
+    for (int i = 1; i < lens.surfaces.size() - 2; i++) {
         const auto &s = lens.surfaces[i];
         trackLength += s.thickness;
         maxAperture = std::max(maxAperture, s.aperture);
@@ -164,7 +165,7 @@ void UI::drawLens(lore::LensSchema<float> &lens) {
 
     ImGui::Text("TTL: %f", trackLength);
 
-    const ImVec2 targetSize = { 500, 300 };
+    const ImVec2 targetSize = ImGui::GetContentRegionAvail();
     const float padding = 4;
     const ImVec2 lensSize = {
         trackLength + 2 * padding,
