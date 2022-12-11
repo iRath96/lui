@@ -6,6 +6,7 @@
 #include "RayInterceptCurve.hpp"
 #include "ParaxialConstants.hpp"
 #include "SurfaceData.hpp"
+#include "RayAimer.hpp"
 
 #include <vector>
 #include <string>
@@ -31,4 +32,5 @@ private:
     SpotDiagram spotDiagram;
     RayInterceptCurve rayInterceptCurve;
     ParaxialConstants paraxialConstants;
+    RayAimer rayAimer;
 };

@@ -4,4 +4,7 @@
 
 struct SurfaceData {
     void draw(lore::LensSchema<float> &lens, bool &lensChanged);
+
+private:
+    std::vector<std::string> apertureFlags;
 };

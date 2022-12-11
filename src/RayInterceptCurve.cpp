@@ -1,4 +1,5 @@
 #include <lui/RayInterceptCurve.hpp>
+#include <lui/utils/linspace.hpp>
 
 #include <lore/rt/GeometricalIntersector.h>
 #include <lore/rt/SequentialTrace.h>
@@ -9,40 +10,7 @@
 using namespace lore;
 using namespace lore::rt;
 
-struct linspace {
-    struct iterator {
-        iterator(int i, const linspace &owner)
-            : i(i), owner(owner) {}
 
-        float operator*() const {
-            return owner.min + (owner.max - owner.min) * float(i) / (owner.n - 1);
-        }
-
-        iterator &operator++() {
-            i++;
-            return *this;
-        }
-
-        bool operator!=(const iterator &other) const {
-            return i != other.i || &owner != &other.owner;
-        }
-
-    private:
-        int i;
-        const linspace &owner;
-    };
-
-    linspace(float min, float max, int n)
-        : min(min), max(max), n(n) {}
-
-    iterator begin() { return iterator(0, *this); }
-
-    iterator end() { return iterator(n, *this); }
-
-private:
-    float min, max;
-    int n;
-};
 
 void RayInterceptCurve::compute(const LensSchema<float> &lensSchema) {
     using Float = double;
@@ -56,8 +24,12 @@ void RayInterceptCurve::compute(const LensSchema<float> &lensSchema) {
         SubPlot &subplot = subplots.back();
         subplot.wavelength = wavelength.wavelength;
 
-        const SequentialTrace<Float> trace{wavelength.wavelength};
         const GeometricalIntersector<Float> intersector;
+        const SequentialTrace trace{
+            lens,
+            intersector,
+            Float(wavelength.wavelength)
+        };
 
         for (const auto &point: linspace(-1, +1, 200)) {
             const auto pupil = lore::Vector2<float>{ 0, lensSchema.entranceBeamRadius * point };
@@ -66,7 +38,7 @@ void RayInterceptCurve::compute(const LensSchema<float> &lensSchema) {
                 lore::Vector3<Float>{0, 0, 1}.normalized()
             );
 
-            if (trace(ray, lens, intersector)) {
+            if (trace(ray)) {
                 subplot.points.push_back({
                                              float(point),
                                              float(ray.origin.y())

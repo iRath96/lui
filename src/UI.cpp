@@ -227,6 +227,7 @@ void UI::draw() {
         spotDiagram.compute(lens);
         rayInterceptCurve.compute(lens);
         paraxialConstants.compute(lens);
+        rayAimer.compute(lens);
 
         lensChanged = false;
     }
@@ -234,4 +235,5 @@ void UI::draw() {
     spotDiagram.draw();
     rayInterceptCurve.draw();
     paraxialConstants.draw();
+    rayAimer.draw();
 }
