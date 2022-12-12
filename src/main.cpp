@@ -114,8 +114,8 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
-    io.Fonts->AddFontFromFileTTF("./data/fonts/SFNS.ttf", 30);
-    io.Fonts->AddFontFromFileTTF("./data/fonts/Monaco.ttf", 26);
+    io.Fonts->AddFontFromFileTTF("./data/fonts/Ubuntu-R.ttf", 26);
+    io.Fonts->AddFontFromFileTTF("./data/fonts/UbuntuMono-R.ttf", 24);
     io.FontGlobalScale = 0.5;
 
     // Our state

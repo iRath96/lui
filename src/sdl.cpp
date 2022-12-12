@@ -98,8 +98,8 @@ int main(int, char**)
     // - Emscripten allows preloading a file or folder to be accessible at runtime. See Makefile for details.
     //io.Fonts->AddFontDefault();
 
-    io.Fonts->AddFontFromFileTTF("./data/fonts/SFNS.ttf", 30);
-    io.Fonts->AddFontFromFileTTF("./data/fonts/Monaco.ttf", 26);
+    io.Fonts->AddFontFromFileTTF("./data/fonts/OpenSans-Regular.ttf", 30);
+    io.Fonts->AddFontFromFileTTF("./data/fonts/FiraCode-Regular.ttf", 26);
     io.FontGlobalScale = 0.5;
 
     // This function call won't return, and will engage in an infinite loop, processing events from the browser, and dispatching them.

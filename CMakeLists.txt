@@ -24,8 +24,6 @@ target_include_directories(lui PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(lui PUBLIC cxx_std_17)
 
 file(COPY data DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY /System/Library/Fonts/SFNS.ttf DESTINATION ${CMAKE_BINARY_DIR}/data/fonts)
-file(COPY /System/Library/Fonts/Monaco.ttf DESTINATION ${CMAKE_BINARY_DIR}/data/fonts)
 file(COPY ${lore_DATA} DESTINATION ${CMAKE_BINARY_DIR})
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Emscripten")
