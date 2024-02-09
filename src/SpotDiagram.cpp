@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <lui/SpotDiagram.hpp>
 #include <lui/utils/CircleGrid.hpp>
 

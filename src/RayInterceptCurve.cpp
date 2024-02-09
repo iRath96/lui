@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <lui/RayInterceptCurve.hpp>
 #include <lui/utils/linspace.hpp>
 

@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <lui/RayAimer.hpp>
 #include <lui/utils/linspace.hpp>
 
