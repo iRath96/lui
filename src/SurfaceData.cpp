@@ -40,7 +40,7 @@ void SurfaceData::draw(lore::LensSchema<float> &lens, bool &lensChanged) {
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3, 2));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
     if (ImGui::BeginTable("table1", 5, flags)) {
-        apertureFlags.reserve(lens.surfaces.size());
+        apertureFlags.resize(lens.surfaces.size());
 
         ImGui::TableSetupColumn("SRF");
         ImGui::TableSetupColumn("RADIUS");
