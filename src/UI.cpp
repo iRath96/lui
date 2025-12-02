@@ -8,6 +8,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 
